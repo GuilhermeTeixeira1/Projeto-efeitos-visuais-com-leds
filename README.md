@@ -29,7 +29,8 @@ Dentro do "efeito3", eu coloco as duplas em estados diferentes para poder começ
 por último, saimos do loop anterior e entramos no último que consiste um while dentro do outro, o loop maior so expira quando o timer de 0,5s acaba (timer11), o outro loop executa as piscadas a 16 Hz (a cada 100ms) (timer10).
 
 CONFIGURAÇÃO DAS ENTRADAS, SAIDAS, TIMERS E ETC:
- // defines:
+
+ 	// defines:
 	#define dupla1 GPIO_ODR_ODR_3
 	#define dupla2 GPIO_ODR_ODR_4
 	#define tomada GPIO_IDR_IDR_0
