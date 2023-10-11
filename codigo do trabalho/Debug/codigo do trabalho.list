@@ -1,0 +1,984 @@
+
+codigo do trabalho.elf:     file format elf32-littlearm
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .isr_vector   000001c4  08000000  08000000  00010000  2**0
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  1 .text         0000063c  080001c4  080001c4  000101c4  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  2 .rodata       00000000  08000800  08000808  00010808  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  3 .init_array   00000004  08000800  08000800  00010800  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+  4 .fini_array   00000004  08000804  08000804  00010804  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+  5 .data         00000000  20000000  20000000  00010808  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  6 .bss          0000001c  20000000  08000808  00020000  2**2
+                  ALLOC
+  7 ._user_heap_stack 00000400  2000001c  08000808  0002001c  2**0
+                  ALLOC
+  8 .ARM.attributes 00000030  00000000  00000000  00010808  2**0
+                  CONTENTS, READONLY
+  9 .debug_info   00000bbc  00000000  00000000  00010838  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_abbrev 00000256  00000000  00000000  000113f4  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_aranges 00000090  00000000  00000000  00011650  2**3
+                  CONTENTS, READONLY, DEBUGGING
+ 12 .debug_ranges 00000068  00000000  00000000  000116e0  2**3
+                  CONTENTS, READONLY, DEBUGGING
+ 13 .debug_line   00000501  00000000  00000000  00011748  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 14 .debug_str    0000053b  00000000  00000000  00011c49  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 15 .comment      0000007c  00000000  00000000  00012184  2**0
+                  CONTENTS, READONLY
+ 16 .debug_frame  00000154  00000000  00000000  00012200  2**2
+                  CONTENTS, READONLY, DEBUGGING
+ 17 .stabstr      0000003f  00000000  00000000  00012354  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+080001c4 <__do_global_dtors_aux>:
+ 80001c4:	b510      	push	{r4, lr}
+ 80001c6:	4c05      	ldr	r4, [pc, #20]	; (80001dc <__do_global_dtors_aux+0x18>)
+ 80001c8:	7823      	ldrb	r3, [r4, #0]
+ 80001ca:	b933      	cbnz	r3, 80001da <__do_global_dtors_aux+0x16>
+ 80001cc:	4b04      	ldr	r3, [pc, #16]	; (80001e0 <__do_global_dtors_aux+0x1c>)
+ 80001ce:	b113      	cbz	r3, 80001d6 <__do_global_dtors_aux+0x12>
+ 80001d0:	4804      	ldr	r0, [pc, #16]	; (80001e4 <__do_global_dtors_aux+0x20>)
+ 80001d2:	f3af 8000 	nop.w
+ 80001d6:	2301      	movs	r3, #1
+ 80001d8:	7023      	strb	r3, [r4, #0]
+ 80001da:	bd10      	pop	{r4, pc}
+ 80001dc:	20000000 	.word	0x20000000
+ 80001e0:	00000000 	.word	0x00000000
+ 80001e4:	080007e8 	.word	0x080007e8
+
+080001e8 <frame_dummy>:
+ 80001e8:	b508      	push	{r3, lr}
+ 80001ea:	4b03      	ldr	r3, [pc, #12]	; (80001f8 <frame_dummy+0x10>)
+ 80001ec:	b11b      	cbz	r3, 80001f6 <frame_dummy+0xe>
+ 80001ee:	4903      	ldr	r1, [pc, #12]	; (80001fc <frame_dummy+0x14>)
+ 80001f0:	4803      	ldr	r0, [pc, #12]	; (8000200 <frame_dummy+0x18>)
+ 80001f2:	f3af 8000 	nop.w
+ 80001f6:	bd08      	pop	{r3, pc}
+ 80001f8:	00000000 	.word	0x00000000
+ 80001fc:	20000004 	.word	0x20000004
+ 8000200:	080007e8 	.word	0x080007e8
+
+08000204 <main>:
+
+	Sequencia dos efeitos: efeito 2 -> efeito 1 -> efeito 1 invertido -> efeito 3
+*/
+
+	int main(void)
+{
+ 8000204:	b580      	push	{r7, lr}
+ 8000206:	b084      	sub	sp, #16
+ 8000208:	af00      	add	r7, sp, #0
+	#define dupla2 GPIO_ODR_ODR_4
+	#define tomada GPIO_IDR_IDR_0
+
+	// configurando GPIO
+	// habilitando clock para port C e B
+	RCC->AHB1ENR |= (RCC_AHB1ENR_GPIOCEN | RCC_AHB1ENR_GPIOBEN);
+ 800020a:	4a59      	ldr	r2, [pc, #356]	; (8000370 <main+0x16c>)
+ 800020c:	4b58      	ldr	r3, [pc, #352]	; (8000370 <main+0x16c>)
+ 800020e:	6b1b      	ldr	r3, [r3, #48]	; 0x30
+ 8000210:	f043 0306 	orr.w	r3, r3, #6
+ 8000214:	6313      	str	r3, [r2, #48]	; 0x30
+
+	// entradas;
+	// PC0 -> SW0
+	GPIOC->MODER &= ~GPIO_MODER_MODER0;
+ 8000216:	4a57      	ldr	r2, [pc, #348]	; (8000374 <main+0x170>)
+ 8000218:	4b56      	ldr	r3, [pc, #344]	; (8000374 <main+0x170>)
+ 800021a:	681b      	ldr	r3, [r3, #0]
+ 800021c:	f023 0303 	bic.w	r3, r3, #3
+ 8000220:	6013      	str	r3, [r2, #0]
+
+	// saidas:
+	// PB3 -> dupla 1 (vm e br), PB4 -> dupla 2 (vd e az)
+	GPIOB->MODER &= ~(GPIO_MODER_MODER3 | GPIO_MODER_MODER4);
+ 8000222:	4a55      	ldr	r2, [pc, #340]	; (8000378 <main+0x174>)
+ 8000224:	4b54      	ldr	r3, [pc, #336]	; (8000378 <main+0x174>)
+ 8000226:	681b      	ldr	r3, [r3, #0]
+ 8000228:	f423 7370 	bic.w	r3, r3, #960	; 0x3c0
+ 800022c:	6013      	str	r3, [r2, #0]
+	GPIOB->MODER |= (GPIO_MODER_MODER3_0 | GPIO_MODER_MODER4_0);
+ 800022e:	4a52      	ldr	r2, [pc, #328]	; (8000378 <main+0x174>)
+ 8000230:	4b51      	ldr	r3, [pc, #324]	; (8000378 <main+0x174>)
+ 8000232:	681b      	ldr	r3, [r3, #0]
+ 8000234:	f443 73a0 	orr.w	r3, r3, #320	; 0x140
+ 8000238:	6013      	str	r3, [r2, #0]
+
+	// configuando TIM10
+	RCC->APB2ENR |= RCC_APB2ENR_TIM10EN;
+ 800023a:	4a4d      	ldr	r2, [pc, #308]	; (8000370 <main+0x16c>)
+ 800023c:	4b4c      	ldr	r3, [pc, #304]	; (8000370 <main+0x16c>)
+ 800023e:	6c5b      	ldr	r3, [r3, #68]	; 0x44
+ 8000240:	f443 3300 	orr.w	r3, r3, #131072	; 0x20000
+ 8000244:	6453      	str	r3, [r2, #68]	; 0x44
+	TIM10->PSC = (1600-1);
+ 8000246:	4b4d      	ldr	r3, [pc, #308]	; (800037c <main+0x178>)
+ 8000248:	f240 623f 	movw	r2, #1599	; 0x63f
+ 800024c:	629a      	str	r2, [r3, #40]	; 0x28
+
+	//habilitando o contador do TIIM10
+	TIM10->CR1 |= TIM_CR1_CEN;
+ 800024e:	4a4b      	ldr	r2, [pc, #300]	; (800037c <main+0x178>)
+ 8000250:	4b4a      	ldr	r3, [pc, #296]	; (800037c <main+0x178>)
+ 8000252:	681b      	ldr	r3, [r3, #0]
+ 8000254:	f043 0301 	orr.w	r3, r3, #1
+ 8000258:	6013      	str	r3, [r2, #0]
+	TIM10->CR1 |= TIM_CR1_ARPE;
+ 800025a:	4a48      	ldr	r2, [pc, #288]	; (800037c <main+0x178>)
+ 800025c:	4b47      	ldr	r3, [pc, #284]	; (800037c <main+0x178>)
+ 800025e:	681b      	ldr	r3, [r3, #0]
+ 8000260:	f043 0380 	orr.w	r3, r3, #128	; 0x80
+ 8000264:	6013      	str	r3, [r2, #0]
+
+	// configurando TIM11:
+	RCC->APB2ENR |= RCC_APB2ENR_TIM11EN;
+ 8000266:	4a42      	ldr	r2, [pc, #264]	; (8000370 <main+0x16c>)
+ 8000268:	4b41      	ldr	r3, [pc, #260]	; (8000370 <main+0x16c>)
+ 800026a:	6c5b      	ldr	r3, [r3, #68]	; 0x44
+ 800026c:	f443 2380 	orr.w	r3, r3, #262144	; 0x40000
+ 8000270:	6453      	str	r3, [r2, #68]	; 0x44
+	TIM11->PSC = (1600-1);
+ 8000272:	4b43      	ldr	r3, [pc, #268]	; (8000380 <main+0x17c>)
+ 8000274:	f240 623f 	movw	r2, #1599	; 0x63f
+ 8000278:	629a      	str	r2, [r3, #40]	; 0x28
+
+	//habilitando o contador do TIIM11
+	TIM11->CR1 |= TIM_CR1_CEN;
+ 800027a:	4a41      	ldr	r2, [pc, #260]	; (8000380 <main+0x17c>)
+ 800027c:	4b40      	ldr	r3, [pc, #256]	; (8000380 <main+0x17c>)
+ 800027e:	681b      	ldr	r3, [r3, #0]
+ 8000280:	f043 0301 	orr.w	r3, r3, #1
+ 8000284:	6013      	str	r3, [r2, #0]
+	TIM11->CR1 |= TIM_CR1_ARPE;
+ 8000286:	4a3e      	ldr	r2, [pc, #248]	; (8000380 <main+0x17c>)
+ 8000288:	4b3d      	ldr	r3, [pc, #244]	; (8000380 <main+0x17c>)
+ 800028a:	681b      	ldr	r3, [r3, #0]
+ 800028c:	f043 0380 	orr.w	r3, r3, #128	; 0x80
+ 8000290:	6013      	str	r3, [r2, #0]
+	// variaveis e funções:
+	void efeito1 (int PiscadasDupla1, int PiscadasDupla2, int divisor);
+	void efeito2 (int divisor);
+	void Efeito1Invertido (int PiscadasDupla1, int PiscadasDupla2, int divisor);
+	void efeito3 (int divisor1, int divisor2);
+	int i=0, arr, PiscadasDupla1, PiscadasDupla2;
+ 8000292:	2300      	movs	r3, #0
+ 8000294:	60fb      	str	r3, [r7, #12]
+
+	while (1)
+	{
+
+		if (GPIOC->IDR & tomada){
+ 8000296:	4b37      	ldr	r3, [pc, #220]	; (8000374 <main+0x170>)
+ 8000298:	691b      	ldr	r3, [r3, #16]
+ 800029a:	f003 0301 	and.w	r3, r3, #1
+ 800029e:	2b00      	cmp	r3, #0
+ 80002a0:	d05f      	beq.n	8000362 <main+0x15e>
+
+			// resetando variaveis:
+			PiscadasDupla1 = 2;
+ 80002a2:	2302      	movs	r3, #2
+ 80002a4:	607b      	str	r3, [r7, #4]
+			PiscadasDupla2 = 2;
+ 80002a6:	2302      	movs	r3, #2
+ 80002a8:	603b      	str	r3, [r7, #0]
+
+			// iniciando efeitos visuais:
+
+			// executando efeito 2
+			arr = 10000; // resetando para 1s de periodo
+ 80002aa:	f242 7310 	movw	r3, #10000	; 0x2710
+ 80002ae:	60bb      	str	r3, [r7, #8]
+				for (i=0; i<98; i++){
+ 80002b0:	2300      	movs	r3, #0
+ 80002b2:	60fb      	str	r3, [r7, #12]
+ 80002b4:	e010      	b.n	80002d8 <main+0xd4>
+					efeito2(arr);
+ 80002b6:	68b8      	ldr	r0, [r7, #8]
+ 80002b8:	f000 f8c6 	bl	8000448 <efeito2>
+					if (i >=9){
+ 80002bc:	68fb      	ldr	r3, [r7, #12]
+ 80002be:	2b08      	cmp	r3, #8
+ 80002c0:	dd03      	ble.n	80002ca <main+0xc6>
+						arr -= 10;
+ 80002c2:	68bb      	ldr	r3, [r7, #8]
+ 80002c4:	3b0a      	subs	r3, #10
+ 80002c6:	60bb      	str	r3, [r7, #8]
+ 80002c8:	e003      	b.n	80002d2 <main+0xce>
+				}
+					else {arr -= 1000;}
+ 80002ca:	68bb      	ldr	r3, [r7, #8]
+ 80002cc:	f5a3 737a 	sub.w	r3, r3, #1000	; 0x3e8
+ 80002d0:	60bb      	str	r3, [r7, #8]
+				for (i=0; i<98; i++){
+ 80002d2:	68fb      	ldr	r3, [r7, #12]
+ 80002d4:	3301      	adds	r3, #1
+ 80002d6:	60fb      	str	r3, [r7, #12]
+ 80002d8:	68fb      	ldr	r3, [r7, #12]
+ 80002da:	2b61      	cmp	r3, #97	; 0x61
+ 80002dc:	ddeb      	ble.n	80002b6 <main+0xb2>
+			}
+
+				arr = 5000; // resetando para 2 hz
+ 80002de:	f241 3388 	movw	r3, #5000	; 0x1388
+ 80002e2:	60bb      	str	r3, [r7, #8]
+
+				// executando efeito 1
+				for(i=0; i<5; i++){
+ 80002e4:	2300      	movs	r3, #0
+ 80002e6:	60fb      	str	r3, [r7, #12]
+ 80002e8:	e00f      	b.n	800030a <main+0x106>
+					efeito1(PiscadasDupla1, 1, arr); // arr = 5000, frequencia inicial de 2 hz
+ 80002ea:	68ba      	ldr	r2, [r7, #8]
+ 80002ec:	2101      	movs	r1, #1
+ 80002ee:	6878      	ldr	r0, [r7, #4]
+ 80002f0:	f000 f848 	bl	8000384 <efeito1>
+					arr = arr/2;
+ 80002f4:	68bb      	ldr	r3, [r7, #8]
+ 80002f6:	0fda      	lsrs	r2, r3, #31
+ 80002f8:	4413      	add	r3, r2
+ 80002fa:	105b      	asrs	r3, r3, #1
+ 80002fc:	60bb      	str	r3, [r7, #8]
+					PiscadasDupla1 += 2;
+ 80002fe:	687b      	ldr	r3, [r7, #4]
+ 8000300:	3302      	adds	r3, #2
+ 8000302:	607b      	str	r3, [r7, #4]
+				for(i=0; i<5; i++){
+ 8000304:	68fb      	ldr	r3, [r7, #12]
+ 8000306:	3301      	adds	r3, #1
+ 8000308:	60fb      	str	r3, [r7, #12]
+ 800030a:	68fb      	ldr	r3, [r7, #12]
+ 800030c:	2b04      	cmp	r3, #4
+ 800030e:	ddec      	ble.n	80002ea <main+0xe6>
+			}
+
+				arr = 5000;
+ 8000310:	f241 3388 	movw	r3, #5000	; 0x1388
+ 8000314:	60bb      	str	r3, [r7, #8]
+
+				// executando efeito 1 invertido
+				for(i=0; i<5; i++){
+ 8000316:	2300      	movs	r3, #0
+ 8000318:	60fb      	str	r3, [r7, #12]
+ 800031a:	e00f      	b.n	800033c <main+0x138>
+					Efeito1Invertido (1, PiscadasDupla2, arr);
+ 800031c:	68ba      	ldr	r2, [r7, #8]
+ 800031e:	6839      	ldr	r1, [r7, #0]
+ 8000320:	2001      	movs	r0, #1
+ 8000322:	f000 f8dd 	bl	80004e0 <Efeito1Invertido>
+					arr = arr/2;
+ 8000326:	68bb      	ldr	r3, [r7, #8]
+ 8000328:	0fda      	lsrs	r2, r3, #31
+ 800032a:	4413      	add	r3, r2
+ 800032c:	105b      	asrs	r3, r3, #1
+ 800032e:	60bb      	str	r3, [r7, #8]
+					PiscadasDupla2 += 2;
+ 8000330:	683b      	ldr	r3, [r7, #0]
+ 8000332:	3302      	adds	r3, #2
+ 8000334:	603b      	str	r3, [r7, #0]
+				for(i=0; i<5; i++){
+ 8000336:	68fb      	ldr	r3, [r7, #12]
+ 8000338:	3301      	adds	r3, #1
+ 800033a:	60fb      	str	r3, [r7, #12]
+ 800033c:	68fb      	ldr	r3, [r7, #12]
+ 800033e:	2b04      	cmp	r3, #4
+ 8000340:	ddec      	ble.n	800031c <main+0x118>
+			}
+
+				// executando efeito 3
+				for (i=0; i<3; i++){
+ 8000342:	2300      	movs	r3, #0
+ 8000344:	60fb      	str	r3, [r7, #12]
+ 8000346:	e008      	b.n	800035a <main+0x156>
+					efeito3(4000, 10000);
+ 8000348:	f242 7110 	movw	r1, #10000	; 0x2710
+ 800034c:	f44f 607a 	mov.w	r0, #4000	; 0xfa0
+ 8000350:	f000 f928 	bl	80005a4 <efeito3>
+				for (i=0; i<3; i++){
+ 8000354:	68fb      	ldr	r3, [r7, #12]
+ 8000356:	3301      	adds	r3, #1
+ 8000358:	60fb      	str	r3, [r7, #12]
+ 800035a:	68fb      	ldr	r3, [r7, #12]
+ 800035c:	2b02      	cmp	r3, #2
+ 800035e:	ddf3      	ble.n	8000348 <main+0x144>
+ 8000360:	e799      	b.n	8000296 <main+0x92>
+			}
+		} // if da tomada
+
+		else {GPIOB->ODR &= ~(dupla1 | dupla2);} // garantindo que os leds estarão apagados se a tomada não estiver ligada
+ 8000362:	4a05      	ldr	r2, [pc, #20]	; (8000378 <main+0x174>)
+ 8000364:	4b04      	ldr	r3, [pc, #16]	; (8000378 <main+0x174>)
+ 8000366:	695b      	ldr	r3, [r3, #20]
+ 8000368:	f023 0318 	bic.w	r3, r3, #24
+ 800036c:	6153      	str	r3, [r2, #20]
+		if (GPIOC->IDR & tomada){
+ 800036e:	e792      	b.n	8000296 <main+0x92>
+ 8000370:	40023800 	.word	0x40023800
+ 8000374:	40020800 	.word	0x40020800
+ 8000378:	40020400 	.word	0x40020400
+ 800037c:	40014400 	.word	0x40014400
+ 8000380:	40014800 	.word	0x40014800
+
+08000384 <efeito1>:
+	} // loop infinito (while)
+} // main
+
+	// FUÇÕES:
+
+	void efeito1 (int PiscadasDupla1, int PiscadasDupla2, int divisor){
+ 8000384:	b480      	push	{r7}
+ 8000386:	b085      	sub	sp, #20
+ 8000388:	af00      	add	r7, sp, #0
+ 800038a:	60f8      	str	r0, [r7, #12]
+ 800038c:	60b9      	str	r1, [r7, #8]
+ 800038e:	607a      	str	r2, [r7, #4]
+		TIM10->ARR = (divisor); // a frequencia aumenta (divisor diminui) conforme o tempo
+ 8000390:	4a2b      	ldr	r2, [pc, #172]	; (8000440 <efeito1+0xbc>)
+ 8000392:	687b      	ldr	r3, [r7, #4]
+ 8000394:	62d3      	str	r3, [r2, #44]	; 0x2c
+		TIM10->CNT = 0; // garantindo que tudo esteja resetado
+ 8000396:	4b2a      	ldr	r3, [pc, #168]	; (8000440 <efeito1+0xbc>)
+ 8000398:	2200      	movs	r2, #0
+ 800039a:	625a      	str	r2, [r3, #36]	; 0x24
+		TIM10->SR &= ~TIM_SR_UIF;
+ 800039c:	4a28      	ldr	r2, [pc, #160]	; (8000440 <efeito1+0xbc>)
+ 800039e:	4b28      	ldr	r3, [pc, #160]	; (8000440 <efeito1+0xbc>)
+ 80003a0:	691b      	ldr	r3, [r3, #16]
+ 80003a2:	f023 0301 	bic.w	r3, r3, #1
+ 80003a6:	6113      	str	r3, [r2, #16]
+
+		PiscadasDupla1 = PiscadasDupla1*2;
+ 80003a8:	68fb      	ldr	r3, [r7, #12]
+ 80003aa:	005b      	lsls	r3, r3, #1
+ 80003ac:	60fb      	str	r3, [r7, #12]
+		PiscadasDupla2 = PiscadasDupla2*2;
+ 80003ae:	68bb      	ldr	r3, [r7, #8]
+ 80003b0:	005b      	lsls	r3, r3, #1
+ 80003b2:	60bb      	str	r3, [r7, #8]
+
+		while(PiscadasDupla1 != 0){ // pisca a dupla 1 conforme o "PiscadasDupla1"
+ 80003b4:	e014      	b.n	80003e0 <efeito1+0x5c>
+			if (TIM10->SR & TIM_SR_UIF){
+ 80003b6:	4b22      	ldr	r3, [pc, #136]	; (8000440 <efeito1+0xbc>)
+ 80003b8:	691b      	ldr	r3, [r3, #16]
+ 80003ba:	f003 0301 	and.w	r3, r3, #1
+ 80003be:	2b00      	cmp	r3, #0
+ 80003c0:	d00e      	beq.n	80003e0 <efeito1+0x5c>
+
+				GPIOB->ODR ^= dupla1;
+ 80003c2:	4a20      	ldr	r2, [pc, #128]	; (8000444 <efeito1+0xc0>)
+ 80003c4:	4b1f      	ldr	r3, [pc, #124]	; (8000444 <efeito1+0xc0>)
+ 80003c6:	695b      	ldr	r3, [r3, #20]
+ 80003c8:	f083 0308 	eor.w	r3, r3, #8
+ 80003cc:	6153      	str	r3, [r2, #20]
+				PiscadasDupla1--;
+ 80003ce:	68fb      	ldr	r3, [r7, #12]
+ 80003d0:	3b01      	subs	r3, #1
+ 80003d2:	60fb      	str	r3, [r7, #12]
+				TIM10->SR &= ~TIM_SR_UIF;
+ 80003d4:	4a1a      	ldr	r2, [pc, #104]	; (8000440 <efeito1+0xbc>)
+ 80003d6:	4b1a      	ldr	r3, [pc, #104]	; (8000440 <efeito1+0xbc>)
+ 80003d8:	691b      	ldr	r3, [r3, #16]
+ 80003da:	f023 0301 	bic.w	r3, r3, #1
+ 80003de:	6113      	str	r3, [r2, #16]
+		while(PiscadasDupla1 != 0){ // pisca a dupla 1 conforme o "PiscadasDupla1"
+ 80003e0:	68fb      	ldr	r3, [r7, #12]
+ 80003e2:	2b00      	cmp	r3, #0
+ 80003e4:	d1e7      	bne.n	80003b6 <efeito1+0x32>
+				}
+			}
+
+		TIM10->ARR = (2000-1); // 5 hz e 100ms led acesso
+ 80003e6:	4b16      	ldr	r3, [pc, #88]	; (8000440 <efeito1+0xbc>)
+ 80003e8:	f240 72cf 	movw	r2, #1999	; 0x7cf
+ 80003ec:	62da      	str	r2, [r3, #44]	; 0x2c
+		TIM10->CNT = 0;
+ 80003ee:	4b14      	ldr	r3, [pc, #80]	; (8000440 <efeito1+0xbc>)
+ 80003f0:	2200      	movs	r2, #0
+ 80003f2:	625a      	str	r2, [r3, #36]	; 0x24
+		TIM10->SR &= ~TIM_SR_UIF;
+ 80003f4:	4a12      	ldr	r2, [pc, #72]	; (8000440 <efeito1+0xbc>)
+ 80003f6:	4b12      	ldr	r3, [pc, #72]	; (8000440 <efeito1+0xbc>)
+ 80003f8:	691b      	ldr	r3, [r3, #16]
+ 80003fa:	f023 0301 	bic.w	r3, r3, #1
+ 80003fe:	6113      	str	r3, [r2, #16]
+
+		while(PiscadasDupla2 != 0){
+ 8000400:	e014      	b.n	800042c <efeito1+0xa8>
+			if (TIM10->SR & TIM_SR_UIF){ // pisca dupla 2 uma vez
+ 8000402:	4b0f      	ldr	r3, [pc, #60]	; (8000440 <efeito1+0xbc>)
+ 8000404:	691b      	ldr	r3, [r3, #16]
+ 8000406:	f003 0301 	and.w	r3, r3, #1
+ 800040a:	2b00      	cmp	r3, #0
+ 800040c:	d00e      	beq.n	800042c <efeito1+0xa8>
+
+				TIM10->SR &= ~TIM_SR_UIF;
+ 800040e:	4a0c      	ldr	r2, [pc, #48]	; (8000440 <efeito1+0xbc>)
+ 8000410:	4b0b      	ldr	r3, [pc, #44]	; (8000440 <efeito1+0xbc>)
+ 8000412:	691b      	ldr	r3, [r3, #16]
+ 8000414:	f023 0301 	bic.w	r3, r3, #1
+ 8000418:	6113      	str	r3, [r2, #16]
+				GPIOB->ODR ^= dupla2;
+ 800041a:	4a0a      	ldr	r2, [pc, #40]	; (8000444 <efeito1+0xc0>)
+ 800041c:	4b09      	ldr	r3, [pc, #36]	; (8000444 <efeito1+0xc0>)
+ 800041e:	695b      	ldr	r3, [r3, #20]
+ 8000420:	f083 0310 	eor.w	r3, r3, #16
+ 8000424:	6153      	str	r3, [r2, #20]
+				PiscadasDupla2--;
+ 8000426:	68bb      	ldr	r3, [r7, #8]
+ 8000428:	3b01      	subs	r3, #1
+ 800042a:	60bb      	str	r3, [r7, #8]
+		while(PiscadasDupla2 != 0){
+ 800042c:	68bb      	ldr	r3, [r7, #8]
+ 800042e:	2b00      	cmp	r3, #0
+ 8000430:	d1e7      	bne.n	8000402 <efeito1+0x7e>
+				}
+			}
+		}
+ 8000432:	bf00      	nop
+ 8000434:	3714      	adds	r7, #20
+ 8000436:	46bd      	mov	sp, r7
+ 8000438:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 800043c:	4770      	bx	lr
+ 800043e:	bf00      	nop
+ 8000440:	40014400 	.word	0x40014400
+ 8000444:	40020400 	.word	0x40020400
+
+08000448 <efeito2>:
+
+	void efeito2 (int divisor){
+ 8000448:	b480      	push	{r7}
+ 800044a:	b083      	sub	sp, #12
+ 800044c:	af00      	add	r7, sp, #0
+ 800044e:	6078      	str	r0, [r7, #4]
+		TIM10->ARR = (divisor); //  o periodo vai diminuindo por piscada, periodo inicial de 1,2s
+ 8000450:	4a21      	ldr	r2, [pc, #132]	; (80004d8 <efeito2+0x90>)
+ 8000452:	687b      	ldr	r3, [r7, #4]
+ 8000454:	62d3      	str	r3, [r2, #44]	; 0x2c
+		TIM10->CNT = 0; // garantindo que tudo esteja resetado
+ 8000456:	4b20      	ldr	r3, [pc, #128]	; (80004d8 <efeito2+0x90>)
+ 8000458:	2200      	movs	r2, #0
+ 800045a:	625a      	str	r2, [r3, #36]	; 0x24
+		TIM10->SR &= ~TIM_SR_UIF;
+ 800045c:	4a1e      	ldr	r2, [pc, #120]	; (80004d8 <efeito2+0x90>)
+ 800045e:	4b1e      	ldr	r3, [pc, #120]	; (80004d8 <efeito2+0x90>)
+ 8000460:	691b      	ldr	r3, [r3, #16]
+ 8000462:	f023 0301 	bic.w	r3, r3, #1
+ 8000466:	6113      	str	r3, [r2, #16]
+
+		GPIOB->ODR |= dupla2; // garantindo que os leds estarão nas posições certas
+ 8000468:	4a1c      	ldr	r2, [pc, #112]	; (80004dc <efeito2+0x94>)
+ 800046a:	4b1c      	ldr	r3, [pc, #112]	; (80004dc <efeito2+0x94>)
+ 800046c:	695b      	ldr	r3, [r3, #20]
+ 800046e:	f043 0310 	orr.w	r3, r3, #16
+ 8000472:	6153      	str	r3, [r2, #20]
+		GPIOB->ODR &= ~dupla1;
+ 8000474:	4a19      	ldr	r2, [pc, #100]	; (80004dc <efeito2+0x94>)
+ 8000476:	4b19      	ldr	r3, [pc, #100]	; (80004dc <efeito2+0x94>)
+ 8000478:	695b      	ldr	r3, [r3, #20]
+ 800047a:	f023 0308 	bic.w	r3, r3, #8
+ 800047e:	6153      	str	r3, [r2, #20]
+
+		while((TIM10->SR & TIM_SR_UIF) != 1){ // sai do loop quando chegar na metade do periodo
+ 8000480:	e00b      	b.n	800049a <efeito2+0x52>
+				GPIOB->ODR ^= dupla2; // liga todos os leds por metade do periodo
+ 8000482:	4a16      	ldr	r2, [pc, #88]	; (80004dc <efeito2+0x94>)
+ 8000484:	4b15      	ldr	r3, [pc, #84]	; (80004dc <efeito2+0x94>)
+ 8000486:	695b      	ldr	r3, [r3, #20]
+ 8000488:	f083 0310 	eor.w	r3, r3, #16
+ 800048c:	6153      	str	r3, [r2, #20]
+				GPIOB->ODR ^= dupla1;
+ 800048e:	4a13      	ldr	r2, [pc, #76]	; (80004dc <efeito2+0x94>)
+ 8000490:	4b12      	ldr	r3, [pc, #72]	; (80004dc <efeito2+0x94>)
+ 8000492:	695b      	ldr	r3, [r3, #20]
+ 8000494:	f083 0308 	eor.w	r3, r3, #8
+ 8000498:	6153      	str	r3, [r2, #20]
+		while((TIM10->SR & TIM_SR_UIF) != 1){ // sai do loop quando chegar na metade do periodo
+ 800049a:	4b0f      	ldr	r3, [pc, #60]	; (80004d8 <efeito2+0x90>)
+ 800049c:	691b      	ldr	r3, [r3, #16]
+ 800049e:	f003 0301 	and.w	r3, r3, #1
+ 80004a2:	2b01      	cmp	r3, #1
+ 80004a4:	d1ed      	bne.n	8000482 <efeito2+0x3a>
+			}
+
+		TIM10->SR &= ~TIM_SR_UIF;
+ 80004a6:	4a0c      	ldr	r2, [pc, #48]	; (80004d8 <efeito2+0x90>)
+ 80004a8:	4b0b      	ldr	r3, [pc, #44]	; (80004d8 <efeito2+0x90>)
+ 80004aa:	691b      	ldr	r3, [r3, #16]
+ 80004ac:	f023 0301 	bic.w	r3, r3, #1
+ 80004b0:	6113      	str	r3, [r2, #16]
+
+		while((TIM10->SR & TIM_SR_UIF) != 1){
+ 80004b2:	e005      	b.n	80004c0 <efeito2+0x78>
+			GPIOB->ODR &= ~(dupla1 | dupla2); // desliga os leds pelo resto do periodo
+ 80004b4:	4a09      	ldr	r2, [pc, #36]	; (80004dc <efeito2+0x94>)
+ 80004b6:	4b09      	ldr	r3, [pc, #36]	; (80004dc <efeito2+0x94>)
+ 80004b8:	695b      	ldr	r3, [r3, #20]
+ 80004ba:	f023 0318 	bic.w	r3, r3, #24
+ 80004be:	6153      	str	r3, [r2, #20]
+		while((TIM10->SR & TIM_SR_UIF) != 1){
+ 80004c0:	4b05      	ldr	r3, [pc, #20]	; (80004d8 <efeito2+0x90>)
+ 80004c2:	691b      	ldr	r3, [r3, #16]
+ 80004c4:	f003 0301 	and.w	r3, r3, #1
+ 80004c8:	2b01      	cmp	r3, #1
+ 80004ca:	d1f3      	bne.n	80004b4 <efeito2+0x6c>
+		}
+	}
+ 80004cc:	bf00      	nop
+ 80004ce:	370c      	adds	r7, #12
+ 80004d0:	46bd      	mov	sp, r7
+ 80004d2:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 80004d6:	4770      	bx	lr
+ 80004d8:	40014400 	.word	0x40014400
+ 80004dc:	40020400 	.word	0x40020400
+
+080004e0 <Efeito1Invertido>:
+
+	void Efeito1Invertido (int PiscadasDupla1, int PiscadasDupla2, int divisor){
+ 80004e0:	b480      	push	{r7}
+ 80004e2:	b085      	sub	sp, #20
+ 80004e4:	af00      	add	r7, sp, #0
+ 80004e6:	60f8      	str	r0, [r7, #12]
+ 80004e8:	60b9      	str	r1, [r7, #8]
+ 80004ea:	607a      	str	r2, [r7, #4]
+		TIM10->ARR = (divisor); // a frequencia aumenta (divisor diminui) conforme o tempo
+ 80004ec:	4a2b      	ldr	r2, [pc, #172]	; (800059c <Efeito1Invertido+0xbc>)
+ 80004ee:	687b      	ldr	r3, [r7, #4]
+ 80004f0:	62d3      	str	r3, [r2, #44]	; 0x2c
+		TIM10->CNT = 0; // garantindo que tudo esteja resetado
+ 80004f2:	4b2a      	ldr	r3, [pc, #168]	; (800059c <Efeito1Invertido+0xbc>)
+ 80004f4:	2200      	movs	r2, #0
+ 80004f6:	625a      	str	r2, [r3, #36]	; 0x24
+		TIM10->SR &= ~TIM_SR_UIF;
+ 80004f8:	4a28      	ldr	r2, [pc, #160]	; (800059c <Efeito1Invertido+0xbc>)
+ 80004fa:	4b28      	ldr	r3, [pc, #160]	; (800059c <Efeito1Invertido+0xbc>)
+ 80004fc:	691b      	ldr	r3, [r3, #16]
+ 80004fe:	f023 0301 	bic.w	r3, r3, #1
+ 8000502:	6113      	str	r3, [r2, #16]
+
+		PiscadasDupla1 = PiscadasDupla1*2;
+ 8000504:	68fb      	ldr	r3, [r7, #12]
+ 8000506:	005b      	lsls	r3, r3, #1
+ 8000508:	60fb      	str	r3, [r7, #12]
+		PiscadasDupla2 = PiscadasDupla2*2;
+ 800050a:	68bb      	ldr	r3, [r7, #8]
+ 800050c:	005b      	lsls	r3, r3, #1
+ 800050e:	60bb      	str	r3, [r7, #8]
+
+		while(PiscadasDupla2 != 0){
+ 8000510:	e014      	b.n	800053c <Efeito1Invertido+0x5c>
+			if (TIM10->SR & TIM_SR_UIF){ // pisca a dupla 2 conforme o "PiscadasDupla2"
+ 8000512:	4b22      	ldr	r3, [pc, #136]	; (800059c <Efeito1Invertido+0xbc>)
+ 8000514:	691b      	ldr	r3, [r3, #16]
+ 8000516:	f003 0301 	and.w	r3, r3, #1
+ 800051a:	2b00      	cmp	r3, #0
+ 800051c:	d00e      	beq.n	800053c <Efeito1Invertido+0x5c>
+
+				GPIOB->ODR ^= dupla2;
+ 800051e:	4a20      	ldr	r2, [pc, #128]	; (80005a0 <Efeito1Invertido+0xc0>)
+ 8000520:	4b1f      	ldr	r3, [pc, #124]	; (80005a0 <Efeito1Invertido+0xc0>)
+ 8000522:	695b      	ldr	r3, [r3, #20]
+ 8000524:	f083 0310 	eor.w	r3, r3, #16
+ 8000528:	6153      	str	r3, [r2, #20]
+				PiscadasDupla2--;
+ 800052a:	68bb      	ldr	r3, [r7, #8]
+ 800052c:	3b01      	subs	r3, #1
+ 800052e:	60bb      	str	r3, [r7, #8]
+				TIM10->SR &= ~TIM_SR_UIF;
+ 8000530:	4a1a      	ldr	r2, [pc, #104]	; (800059c <Efeito1Invertido+0xbc>)
+ 8000532:	4b1a      	ldr	r3, [pc, #104]	; (800059c <Efeito1Invertido+0xbc>)
+ 8000534:	691b      	ldr	r3, [r3, #16]
+ 8000536:	f023 0301 	bic.w	r3, r3, #1
+ 800053a:	6113      	str	r3, [r2, #16]
+		while(PiscadasDupla2 != 0){
+ 800053c:	68bb      	ldr	r3, [r7, #8]
+ 800053e:	2b00      	cmp	r3, #0
+ 8000540:	d1e7      	bne.n	8000512 <Efeito1Invertido+0x32>
+			}
+		}
+
+		TIM10->ARR = (2000-1); // 5 hz e 100ms led acesso
+ 8000542:	4b16      	ldr	r3, [pc, #88]	; (800059c <Efeito1Invertido+0xbc>)
+ 8000544:	f240 72cf 	movw	r2, #1999	; 0x7cf
+ 8000548:	62da      	str	r2, [r3, #44]	; 0x2c
+		TIM10->CNT = 0;
+ 800054a:	4b14      	ldr	r3, [pc, #80]	; (800059c <Efeito1Invertido+0xbc>)
+ 800054c:	2200      	movs	r2, #0
+ 800054e:	625a      	str	r2, [r3, #36]	; 0x24
+		TIM10->SR &= ~TIM_SR_UIF;
+ 8000550:	4a12      	ldr	r2, [pc, #72]	; (800059c <Efeito1Invertido+0xbc>)
+ 8000552:	4b12      	ldr	r3, [pc, #72]	; (800059c <Efeito1Invertido+0xbc>)
+ 8000554:	691b      	ldr	r3, [r3, #16]
+ 8000556:	f023 0301 	bic.w	r3, r3, #1
+ 800055a:	6113      	str	r3, [r2, #16]
+
+		while(PiscadasDupla1 != 0){ // dupla 1 pisca uma vez
+ 800055c:	e014      	b.n	8000588 <Efeito1Invertido+0xa8>
+			if (TIM10->SR & TIM_SR_UIF){
+ 800055e:	4b0f      	ldr	r3, [pc, #60]	; (800059c <Efeito1Invertido+0xbc>)
+ 8000560:	691b      	ldr	r3, [r3, #16]
+ 8000562:	f003 0301 	and.w	r3, r3, #1
+ 8000566:	2b00      	cmp	r3, #0
+ 8000568:	d00e      	beq.n	8000588 <Efeito1Invertido+0xa8>
+
+				TIM10->SR &= ~TIM_SR_UIF;
+ 800056a:	4a0c      	ldr	r2, [pc, #48]	; (800059c <Efeito1Invertido+0xbc>)
+ 800056c:	4b0b      	ldr	r3, [pc, #44]	; (800059c <Efeito1Invertido+0xbc>)
+ 800056e:	691b      	ldr	r3, [r3, #16]
+ 8000570:	f023 0301 	bic.w	r3, r3, #1
+ 8000574:	6113      	str	r3, [r2, #16]
+				GPIOB->ODR ^= dupla1;
+ 8000576:	4a0a      	ldr	r2, [pc, #40]	; (80005a0 <Efeito1Invertido+0xc0>)
+ 8000578:	4b09      	ldr	r3, [pc, #36]	; (80005a0 <Efeito1Invertido+0xc0>)
+ 800057a:	695b      	ldr	r3, [r3, #20]
+ 800057c:	f083 0308 	eor.w	r3, r3, #8
+ 8000580:	6153      	str	r3, [r2, #20]
+				PiscadasDupla1--;
+ 8000582:	68fb      	ldr	r3, [r7, #12]
+ 8000584:	3b01      	subs	r3, #1
+ 8000586:	60fb      	str	r3, [r7, #12]
+		while(PiscadasDupla1 != 0){ // dupla 1 pisca uma vez
+ 8000588:	68fb      	ldr	r3, [r7, #12]
+ 800058a:	2b00      	cmp	r3, #0
+ 800058c:	d1e7      	bne.n	800055e <Efeito1Invertido+0x7e>
+			}
+		}
+	}
+ 800058e:	bf00      	nop
+ 8000590:	3714      	adds	r7, #20
+ 8000592:	46bd      	mov	sp, r7
+ 8000594:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000598:	4770      	bx	lr
+ 800059a:	bf00      	nop
+ 800059c:	40014400 	.word	0x40014400
+ 80005a0:	40020400 	.word	0x40020400
+
+080005a4 <efeito3>:
+
+	void efeito3(int divisor1, int divisor2){
+ 80005a4:	b480      	push	{r7}
+ 80005a6:	b085      	sub	sp, #20
+ 80005a8:	af00      	add	r7, sp, #0
+ 80005aa:	6078      	str	r0, [r7, #4]
+ 80005ac:	6039      	str	r1, [r7, #0]
+		TIM10->ARR = (divisor1); // 2,5 hz
+ 80005ae:	4a49      	ldr	r2, [pc, #292]	; (80006d4 <efeito3+0x130>)
+ 80005b0:	687b      	ldr	r3, [r7, #4]
+ 80005b2:	62d3      	str	r3, [r2, #44]	; 0x2c
+		TIM11->ARR = (divisor2); // 1 hz
+ 80005b4:	4a48      	ldr	r2, [pc, #288]	; (80006d8 <efeito3+0x134>)
+ 80005b6:	683b      	ldr	r3, [r7, #0]
+ 80005b8:	62d3      	str	r3, [r2, #44]	; 0x2c
+		TIM10->CNT = 0; // garantindo que tudo esteja resetado
+ 80005ba:	4b46      	ldr	r3, [pc, #280]	; (80006d4 <efeito3+0x130>)
+ 80005bc:	2200      	movs	r2, #0
+ 80005be:	625a      	str	r2, [r3, #36]	; 0x24
+		TIM10->SR &= ~TIM_SR_UIF;
+ 80005c0:	4a44      	ldr	r2, [pc, #272]	; (80006d4 <efeito3+0x130>)
+ 80005c2:	4b44      	ldr	r3, [pc, #272]	; (80006d4 <efeito3+0x130>)
+ 80005c4:	691b      	ldr	r3, [r3, #16]
+ 80005c6:	f023 0301 	bic.w	r3, r3, #1
+ 80005ca:	6113      	str	r3, [r2, #16]
+
+		GPIOB->ODR |= dupla1; // garantindo que os leds estarão nas posições certas
+ 80005cc:	4a43      	ldr	r2, [pc, #268]	; (80006dc <efeito3+0x138>)
+ 80005ce:	4b43      	ldr	r3, [pc, #268]	; (80006dc <efeito3+0x138>)
+ 80005d0:	695b      	ldr	r3, [r3, #20]
+ 80005d2:	f043 0308 	orr.w	r3, r3, #8
+ 80005d6:	6153      	str	r3, [r2, #20]
+		GPIOB->ODR &= ~dupla2;
+ 80005d8:	4a40      	ldr	r2, [pc, #256]	; (80006dc <efeito3+0x138>)
+ 80005da:	4b40      	ldr	r3, [pc, #256]	; (80006dc <efeito3+0x138>)
+ 80005dc:	695b      	ldr	r3, [r3, #20]
+ 80005de:	f023 0310 	bic.w	r3, r3, #16
+ 80005e2:	6153      	str	r3, [r2, #20]
+
+		int cont=0;
+ 80005e4:	2300      	movs	r3, #0
+ 80005e6:	60fb      	str	r3, [r7, #12]
+
+		// piscando 3 vezes a 2,5 hz
+		while(cont != 4){
+ 80005e8:	e02d      	b.n	8000646 <efeito3+0xa2>
+			while((TIM10->SR & TIM_SR_UIF) != 1){ // sai do loop quando chegar na metade do periodo
+				GPIOB->ODR ^= dupla2; // liga todos os leds por metade do periodo
+ 80005ea:	4a3c      	ldr	r2, [pc, #240]	; (80006dc <efeito3+0x138>)
+ 80005ec:	4b3b      	ldr	r3, [pc, #236]	; (80006dc <efeito3+0x138>)
+ 80005ee:	695b      	ldr	r3, [r3, #20]
+ 80005f0:	f083 0310 	eor.w	r3, r3, #16
+ 80005f4:	6153      	str	r3, [r2, #20]
+				GPIOB->ODR ^= dupla1;
+ 80005f6:	4a39      	ldr	r2, [pc, #228]	; (80006dc <efeito3+0x138>)
+ 80005f8:	4b38      	ldr	r3, [pc, #224]	; (80006dc <efeito3+0x138>)
+ 80005fa:	695b      	ldr	r3, [r3, #20]
+ 80005fc:	f083 0308 	eor.w	r3, r3, #8
+ 8000600:	6153      	str	r3, [r2, #20]
+			while((TIM10->SR & TIM_SR_UIF) != 1){ // sai do loop quando chegar na metade do periodo
+ 8000602:	4b34      	ldr	r3, [pc, #208]	; (80006d4 <efeito3+0x130>)
+ 8000604:	691b      	ldr	r3, [r3, #16]
+ 8000606:	f003 0301 	and.w	r3, r3, #1
+ 800060a:	2b01      	cmp	r3, #1
+ 800060c:	d1ed      	bne.n	80005ea <efeito3+0x46>
+			}
+
+			TIM10->SR &= ~TIM_SR_UIF;
+ 800060e:	4a31      	ldr	r2, [pc, #196]	; (80006d4 <efeito3+0x130>)
+ 8000610:	4b30      	ldr	r3, [pc, #192]	; (80006d4 <efeito3+0x130>)
+ 8000612:	691b      	ldr	r3, [r3, #16]
+ 8000614:	f023 0301 	bic.w	r3, r3, #1
+ 8000618:	6113      	str	r3, [r2, #16]
+
+			while((TIM10->SR & TIM_SR_UIF) != 1){
+ 800061a:	e005      	b.n	8000628 <efeito3+0x84>
+				GPIOB->ODR &= ~(dupla1 | dupla2); // desliga os leds pelo resto do periodo
+ 800061c:	4a2f      	ldr	r2, [pc, #188]	; (80006dc <efeito3+0x138>)
+ 800061e:	4b2f      	ldr	r3, [pc, #188]	; (80006dc <efeito3+0x138>)
+ 8000620:	695b      	ldr	r3, [r3, #20]
+ 8000622:	f023 0318 	bic.w	r3, r3, #24
+ 8000626:	6153      	str	r3, [r2, #20]
+			while((TIM10->SR & TIM_SR_UIF) != 1){
+ 8000628:	4b2a      	ldr	r3, [pc, #168]	; (80006d4 <efeito3+0x130>)
+ 800062a:	691b      	ldr	r3, [r3, #16]
+ 800062c:	f003 0301 	and.w	r3, r3, #1
+ 8000630:	2b01      	cmp	r3, #1
+ 8000632:	d1f3      	bne.n	800061c <efeito3+0x78>
+			}
+			TIM10->SR &= ~TIM_SR_UIF;
+ 8000634:	4a27      	ldr	r2, [pc, #156]	; (80006d4 <efeito3+0x130>)
+ 8000636:	4b27      	ldr	r3, [pc, #156]	; (80006d4 <efeito3+0x130>)
+ 8000638:	691b      	ldr	r3, [r3, #16]
+ 800063a:	f023 0301 	bic.w	r3, r3, #1
+ 800063e:	6113      	str	r3, [r2, #16]
+			cont++;
+ 8000640:	68fb      	ldr	r3, [r7, #12]
+ 8000642:	3301      	adds	r3, #1
+ 8000644:	60fb      	str	r3, [r7, #12]
+		while(cont != 4){
+ 8000646:	68fb      	ldr	r3, [r7, #12]
+ 8000648:	2b04      	cmp	r3, #4
+ 800064a:	d1da      	bne.n	8000602 <efeito3+0x5e>
+		}
+
+		// piscando a 16 hz por meio segundo
+		TIM10->ARR = (625-1); // 16 hz
+ 800064c:	4b21      	ldr	r3, [pc, #132]	; (80006d4 <efeito3+0x130>)
+ 800064e:	f44f 721c 	mov.w	r2, #624	; 0x270
+ 8000652:	62da      	str	r2, [r3, #44]	; 0x2c
+		TIM11->SR &= ~TIM_SR_UIF;
+ 8000654:	4a20      	ldr	r2, [pc, #128]	; (80006d8 <efeito3+0x134>)
+ 8000656:	4b20      	ldr	r3, [pc, #128]	; (80006d8 <efeito3+0x134>)
+ 8000658:	691b      	ldr	r3, [r3, #16]
+ 800065a:	f023 0301 	bic.w	r3, r3, #1
+ 800065e:	6113      	str	r3, [r2, #16]
+		TIM11->CNT = 0; // garantindo que tudo esteja resetado
+ 8000660:	4b1d      	ldr	r3, [pc, #116]	; (80006d8 <efeito3+0x134>)
+ 8000662:	2200      	movs	r2, #0
+ 8000664:	625a      	str	r2, [r3, #36]	; 0x24
+		TIM10->SR &= ~TIM_SR_UIF;
+ 8000666:	4a1b      	ldr	r2, [pc, #108]	; (80006d4 <efeito3+0x130>)
+ 8000668:	4b1a      	ldr	r3, [pc, #104]	; (80006d4 <efeito3+0x130>)
+ 800066a:	691b      	ldr	r3, [r3, #16]
+ 800066c:	f023 0301 	bic.w	r3, r3, #1
+ 8000670:	6113      	str	r3, [r2, #16]
+
+		GPIOB->ODR |= dupla1; // garantindo que os leds estarão nas posições certas
+ 8000672:	4a1a      	ldr	r2, [pc, #104]	; (80006dc <efeito3+0x138>)
+ 8000674:	4b19      	ldr	r3, [pc, #100]	; (80006dc <efeito3+0x138>)
+ 8000676:	695b      	ldr	r3, [r3, #20]
+ 8000678:	f043 0308 	orr.w	r3, r3, #8
+ 800067c:	6153      	str	r3, [r2, #20]
+		GPIOB->ODR &= ~dupla2;
+ 800067e:	4a17      	ldr	r2, [pc, #92]	; (80006dc <efeito3+0x138>)
+ 8000680:	4b16      	ldr	r3, [pc, #88]	; (80006dc <efeito3+0x138>)
+ 8000682:	695b      	ldr	r3, [r3, #20]
+ 8000684:	f023 0310 	bic.w	r3, r3, #16
+ 8000688:	6153      	str	r3, [r2, #20]
+
+		while((TIM11->SR & TIM_SR_UIF) != 1){
+ 800068a:	e017      	b.n	80006bc <efeito3+0x118>
+			if (TIM10->SR & TIM_SR_UIF){
+ 800068c:	4b11      	ldr	r3, [pc, #68]	; (80006d4 <efeito3+0x130>)
+ 800068e:	691b      	ldr	r3, [r3, #16]
+ 8000690:	f003 0301 	and.w	r3, r3, #1
+ 8000694:	2b00      	cmp	r3, #0
+ 8000696:	d011      	beq.n	80006bc <efeito3+0x118>
+				GPIOB->ODR ^= dupla1; // liga todos os leds por metade do periodo
+ 8000698:	4a10      	ldr	r2, [pc, #64]	; (80006dc <efeito3+0x138>)
+ 800069a:	4b10      	ldr	r3, [pc, #64]	; (80006dc <efeito3+0x138>)
+ 800069c:	695b      	ldr	r3, [r3, #20]
+ 800069e:	f083 0308 	eor.w	r3, r3, #8
+ 80006a2:	6153      	str	r3, [r2, #20]
+				GPIOB->ODR ^= dupla2;
+ 80006a4:	4a0d      	ldr	r2, [pc, #52]	; (80006dc <efeito3+0x138>)
+ 80006a6:	4b0d      	ldr	r3, [pc, #52]	; (80006dc <efeito3+0x138>)
+ 80006a8:	695b      	ldr	r3, [r3, #20]
+ 80006aa:	f083 0310 	eor.w	r3, r3, #16
+ 80006ae:	6153      	str	r3, [r2, #20]
+				TIM10->SR &= ~TIM_SR_UIF;
+ 80006b0:	4a08      	ldr	r2, [pc, #32]	; (80006d4 <efeito3+0x130>)
+ 80006b2:	4b08      	ldr	r3, [pc, #32]	; (80006d4 <efeito3+0x130>)
+ 80006b4:	691b      	ldr	r3, [r3, #16]
+ 80006b6:	f023 0301 	bic.w	r3, r3, #1
+ 80006ba:	6113      	str	r3, [r2, #16]
+		while((TIM11->SR & TIM_SR_UIF) != 1){
+ 80006bc:	4b06      	ldr	r3, [pc, #24]	; (80006d8 <efeito3+0x134>)
+ 80006be:	691b      	ldr	r3, [r3, #16]
+ 80006c0:	f003 0301 	and.w	r3, r3, #1
+ 80006c4:	2b01      	cmp	r3, #1
+ 80006c6:	d1e1      	bne.n	800068c <efeito3+0xe8>
+			}
+		}
+	} // fim função
+ 80006c8:	bf00      	nop
+ 80006ca:	3714      	adds	r7, #20
+ 80006cc:	46bd      	mov	sp, r7
+ 80006ce:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 80006d2:	4770      	bx	lr
+ 80006d4:	40014400 	.word	0x40014400
+ 80006d8:	40014800 	.word	0x40014800
+ 80006dc:	40020400 	.word	0x40020400
+
+080006e0 <Reset_Handler>:
+ 80006e0:	f8df d034 	ldr.w	sp, [pc, #52]	; 8000718 <LoopFillZerobss+0x14>
+ 80006e4:	2100      	movs	r1, #0
+ 80006e6:	e003      	b.n	80006f0 <LoopCopyDataInit>
+
+080006e8 <CopyDataInit>:
+ 80006e8:	4b0c      	ldr	r3, [pc, #48]	; (800071c <LoopFillZerobss+0x18>)
+ 80006ea:	585b      	ldr	r3, [r3, r1]
+ 80006ec:	5043      	str	r3, [r0, r1]
+ 80006ee:	3104      	adds	r1, #4
+
+080006f0 <LoopCopyDataInit>:
+ 80006f0:	480b      	ldr	r0, [pc, #44]	; (8000720 <LoopFillZerobss+0x1c>)
+ 80006f2:	4b0c      	ldr	r3, [pc, #48]	; (8000724 <LoopFillZerobss+0x20>)
+ 80006f4:	1842      	adds	r2, r0, r1
+ 80006f6:	429a      	cmp	r2, r3
+ 80006f8:	d3f6      	bcc.n	80006e8 <CopyDataInit>
+ 80006fa:	4a0b      	ldr	r2, [pc, #44]	; (8000728 <LoopFillZerobss+0x24>)
+ 80006fc:	e002      	b.n	8000704 <LoopFillZerobss>
+
+080006fe <FillZerobss>:
+ 80006fe:	2300      	movs	r3, #0
+ 8000700:	f842 3b04 	str.w	r3, [r2], #4
+
+08000704 <LoopFillZerobss>:
+ 8000704:	4b09      	ldr	r3, [pc, #36]	; (800072c <LoopFillZerobss+0x28>)
+ 8000706:	429a      	cmp	r2, r3
+ 8000708:	d3f9      	bcc.n	80006fe <FillZerobss>
+ 800070a:	f000 f813 	bl	8000734 <SystemInit>
+ 800070e:	f000 f847 	bl	80007a0 <__libc_init_array>
+ 8000712:	f7ff fd77 	bl	8000204 <main>
+ 8000716:	4770      	bx	lr
+ 8000718:	20020000 	.word	0x20020000
+ 800071c:	08000808 	.word	0x08000808
+ 8000720:	20000000 	.word	0x20000000
+ 8000724:	20000000 	.word	0x20000000
+ 8000728:	20000000 	.word	0x20000000
+ 800072c:	2000001c 	.word	0x2000001c
+
+08000730 <ADC_IRQHandler>:
+ 8000730:	e7fe      	b.n	8000730 <ADC_IRQHandler>
+	...
+
+08000734 <SystemInit>:
+ 8000734:	b480      	push	{r7}
+ 8000736:	af00      	add	r7, sp, #0
+ 8000738:	4a16      	ldr	r2, [pc, #88]	; (8000794 <SystemInit+0x60>)
+ 800073a:	4b16      	ldr	r3, [pc, #88]	; (8000794 <SystemInit+0x60>)
+ 800073c:	f8d3 3088 	ldr.w	r3, [r3, #136]	; 0x88
+ 8000740:	f443 0370 	orr.w	r3, r3, #15728640	; 0xf00000
+ 8000744:	f8c2 3088 	str.w	r3, [r2, #136]	; 0x88
+ 8000748:	4a13      	ldr	r2, [pc, #76]	; (8000798 <SystemInit+0x64>)
+ 800074a:	4b13      	ldr	r3, [pc, #76]	; (8000798 <SystemInit+0x64>)
+ 800074c:	681b      	ldr	r3, [r3, #0]
+ 800074e:	f043 0301 	orr.w	r3, r3, #1
+ 8000752:	6013      	str	r3, [r2, #0]
+ 8000754:	4b10      	ldr	r3, [pc, #64]	; (8000798 <SystemInit+0x64>)
+ 8000756:	2200      	movs	r2, #0
+ 8000758:	609a      	str	r2, [r3, #8]
+ 800075a:	4a0f      	ldr	r2, [pc, #60]	; (8000798 <SystemInit+0x64>)
+ 800075c:	4b0e      	ldr	r3, [pc, #56]	; (8000798 <SystemInit+0x64>)
+ 800075e:	681b      	ldr	r3, [r3, #0]
+ 8000760:	f023 7384 	bic.w	r3, r3, #17301504	; 0x1080000
+ 8000764:	f423 3380 	bic.w	r3, r3, #65536	; 0x10000
+ 8000768:	6013      	str	r3, [r2, #0]
+ 800076a:	4b0b      	ldr	r3, [pc, #44]	; (8000798 <SystemInit+0x64>)
+ 800076c:	4a0b      	ldr	r2, [pc, #44]	; (800079c <SystemInit+0x68>)
+ 800076e:	605a      	str	r2, [r3, #4]
+ 8000770:	4a09      	ldr	r2, [pc, #36]	; (8000798 <SystemInit+0x64>)
+ 8000772:	4b09      	ldr	r3, [pc, #36]	; (8000798 <SystemInit+0x64>)
+ 8000774:	681b      	ldr	r3, [r3, #0]
+ 8000776:	f423 2380 	bic.w	r3, r3, #262144	; 0x40000
+ 800077a:	6013      	str	r3, [r2, #0]
+ 800077c:	4b06      	ldr	r3, [pc, #24]	; (8000798 <SystemInit+0x64>)
+ 800077e:	2200      	movs	r2, #0
+ 8000780:	60da      	str	r2, [r3, #12]
+ 8000782:	4b04      	ldr	r3, [pc, #16]	; (8000794 <SystemInit+0x60>)
+ 8000784:	f04f 6200 	mov.w	r2, #134217728	; 0x8000000
+ 8000788:	609a      	str	r2, [r3, #8]
+ 800078a:	bf00      	nop
+ 800078c:	46bd      	mov	sp, r7
+ 800078e:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000792:	4770      	bx	lr
+ 8000794:	e000ed00 	.word	0xe000ed00
+ 8000798:	40023800 	.word	0x40023800
+ 800079c:	24003010 	.word	0x24003010
+
+080007a0 <__libc_init_array>:
+ 80007a0:	b570      	push	{r4, r5, r6, lr}
+ 80007a2:	4e0d      	ldr	r6, [pc, #52]	; (80007d8 <__libc_init_array+0x38>)
+ 80007a4:	4c0d      	ldr	r4, [pc, #52]	; (80007dc <__libc_init_array+0x3c>)
+ 80007a6:	1ba4      	subs	r4, r4, r6
+ 80007a8:	10a4      	asrs	r4, r4, #2
+ 80007aa:	2500      	movs	r5, #0
+ 80007ac:	42a5      	cmp	r5, r4
+ 80007ae:	d109      	bne.n	80007c4 <__libc_init_array+0x24>
+ 80007b0:	4e0b      	ldr	r6, [pc, #44]	; (80007e0 <__libc_init_array+0x40>)
+ 80007b2:	4c0c      	ldr	r4, [pc, #48]	; (80007e4 <__libc_init_array+0x44>)
+ 80007b4:	f000 f818 	bl	80007e8 <_init>
+ 80007b8:	1ba4      	subs	r4, r4, r6
+ 80007ba:	10a4      	asrs	r4, r4, #2
+ 80007bc:	2500      	movs	r5, #0
+ 80007be:	42a5      	cmp	r5, r4
+ 80007c0:	d105      	bne.n	80007ce <__libc_init_array+0x2e>
+ 80007c2:	bd70      	pop	{r4, r5, r6, pc}
+ 80007c4:	f856 3025 	ldr.w	r3, [r6, r5, lsl #2]
+ 80007c8:	4798      	blx	r3
+ 80007ca:	3501      	adds	r5, #1
+ 80007cc:	e7ee      	b.n	80007ac <__libc_init_array+0xc>
+ 80007ce:	f856 3025 	ldr.w	r3, [r6, r5, lsl #2]
+ 80007d2:	4798      	blx	r3
+ 80007d4:	3501      	adds	r5, #1
+ 80007d6:	e7f2      	b.n	80007be <__libc_init_array+0x1e>
+ 80007d8:	08000800 	.word	0x08000800
+ 80007dc:	08000800 	.word	0x08000800
+ 80007e0:	08000800 	.word	0x08000800
+ 80007e4:	08000804 	.word	0x08000804
+
+080007e8 <_init>:
+ 80007e8:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 80007ea:	bf00      	nop
+ 80007ec:	bcf8      	pop	{r3, r4, r5, r6, r7}
+ 80007ee:	bc08      	pop	{r3}
+ 80007f0:	469e      	mov	lr, r3
+ 80007f2:	4770      	bx	lr
+
+080007f4 <_fini>:
+ 80007f4:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 80007f6:	bf00      	nop
+ 80007f8:	bcf8      	pop	{r3, r4, r5, r6, r7}
+ 80007fa:	bc08      	pop	{r3}
+ 80007fc:	469e      	mov	lr, r3
+ 80007fe:	4770      	bx	lr
