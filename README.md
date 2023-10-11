@@ -1,6 +1,7 @@
 # Projeto efeitos visuais com leds
  4 tipos de efeitos visuais um seguido do outro. Programado em C na platforma Attolic TrueStudio usando o microcontrolador STM32 nucleo 446RE
- Obs: as configurações de entradas, saida, timers e etc estarão no final deste arquivo
+ obs: as configurações de entradas, saida, timers e etc estarão no final deste arquivo
+ obs 2: na imagem que contém o esquemático tem o microcontrolador com o nucleo diferente do usado, porém funciona do mesmo jeito normalmente
 
  QUAL A LOGICA DO PROJETO?
 o projeto foi divido entre 4 efeitos diferentes com a seguinte ordem: efeito 2 -> efeito 1 -> efeito 1 invertido -> efeito 3. O projeto possui 4 leds ao todo sendo dividos em 2 duplas diferentes cada um, sendo denominados "dupla1" e "dupla2". Os efeitos só acontecem se o interruptor no hardware estiver ligado (sw0), caso contrario, todos os leds ficam desligados
