@@ -3,7 +3,7 @@
  Obs: as configurações de entradas, saida, timers e etc estarão no final deste arquivo
 
  QUAL A LOGICA DO PROJETO?
-o projeto foi divido entre 4 efeitos diferentes com a seguinte ordem: efeito 2 -> efeito 1 -> efeito 1 invertido -> efeito 3. O projeto possui 4 leds ao todo sendo dividos em 2 duplas diferentes cada um, sendo denominados "dupla1" e "dupla2"
+o projeto foi divido entre 4 efeitos diferentes com a seguinte ordem: efeito 2 -> efeito 1 -> efeito 1 invertido -> efeito 3. O projeto possui 4 leds ao todo sendo dividos em 2 duplas diferentes cada um, sendo denominados "dupla1" e "dupla2". Os efeitos só acontecem se o interruptor no hardware estiver ligado (sw0), caso contrario, todos os leds ficam desligados
 
 COMO FUNCIONA A LINHA DE RACICIONIO DO CODIGO?
 - main:
@@ -26,3 +26,38 @@ a função esta dentro de um laço for que a cada vez que executa, divide pela m
 Dentro do "efeito3", eu coloco as duplas em estados diferentes para poder começar a piscar, depois, entro em um loop while que so para quando os leds piscarem 2x (cont != 4), na pratica eles piscam 3x porque inicialmente as duplas ja estão nas posições corretas, o que faz com que tenham que fazer metade trabalho para piscar, por isso cont != 4 e nao != 6. Dentro desse loop tem mais 2 loops while, um encarregado de trocar os estados e o outro loop para desligar todos.
   obs: as piscadas tem que estarem dentro dos loops porque o processador do microprocessador é muito mais veloz que o tempo do timer, entao quando ele entra no loop, ele fica la até estourar o tempo do timer (estourar o flag).
 por último, saimos do loop anterior e entramos no último que consiste um while dentro do outro, o loop maior so expira quando o timer de 0,5s acaba (timer11), o outro loop executa as piscadas a 16 Hz (a cada 100ms) (timer10).
+
+CONFIGURAÇÃO DAS ENTRADAS, SAIDAS, TIMERS E ETC:
+ // defines:
+	#define dupla1 GPIO_ODR_ODR_3
+	#define dupla2 GPIO_ODR_ODR_4
+	#define tomada GPIO_IDR_IDR_0
+
+	// configurando GPIO
+	// habilitando clock para port C e B
+	RCC->AHB1ENR |= (RCC_AHB1ENR_GPIOCEN | RCC_AHB1ENR_GPIOBEN);
+
+	// entradas;
+	// PC0 -> SW0
+	GPIOC->MODER &= ~GPIO_MODER_MODER0;
+
+	// saidas:
+	// PB3 -> dupla 1 (vm e br), PB4 -> dupla 2 (vd e az)
+	GPIOB->MODER &= ~(GPIO_MODER_MODER3 | GPIO_MODER_MODER4);
+	GPIOB->MODER |= (GPIO_MODER_MODER3_0 | GPIO_MODER_MODER4_0);
+
+	// configuando TIM10
+	RCC->APB2ENR |= RCC_APB2ENR_TIM10EN;
+	TIM10->PSC = (1600-1);
+
+	//habilitando o contador do TIIM10
+	TIM10->CR1 |= TIM_CR1_CEN;
+	TIM10->CR1 |= TIM_CR1_ARPE;
+
+	// configurando TIM11:
+	RCC->APB2ENR |= RCC_APB2ENR_TIM11EN;
+	TIM11->PSC = (1600-1);
+
+	//habilitando o contador do TIIM11
+	TIM11->CR1 |= TIM_CR1_CEN;
+	TIM11->CR1 |= TIM_CR1_ARPE;
