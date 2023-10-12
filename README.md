@@ -27,9 +27,9 @@ A função está dentro de um laço for que, a cada vez que executa, divide pela
 - Efeito 3:
   A ideia dele é fazer todas duplas piscarem 3x à 2,5 Hz, depois, começam a piscar frenéticamente à 16 Hz por 0,5s. A função "efeito3" está dentro de um laço for que executa 3x a função. Ela recebe como parâmetro o temporizador 1 e o temporizador 2, porque dentro da função, usei 2 timers diferentes (timer 10 e 11), um responsável para controlar a frêquencia de 2,5 Hz (timer10) e o outro para contar 0,5s.
   
-Dentro do "efeito3", eu coloco as duplas em estados diferentes para poder começar a piscar, depois, entro em um loop while que so para quando os leds piscarem 2x (cont != 4), na pratica eles piscam 3x porque inicialmente as duplas ja estão nas posições corretas, o que faz com que tenham que fazer metade trabalho para piscar, por isso cont != 4 e nao != 6. Dentro desse loop tem mais 2 loops while, um encarregado de trocar os estados e o outro loop para desligar todos.
-  Obs: as piscadas tem que estarem dentro dos loops porque o processador do microprocessador é muito mais veloz que o tempo do timer, entao quando ele entra no loop, ele fica la até estourar o tempo do timer (estourar o flag).
-por último, saimos do loop anterior e entramos no último que consiste um while dentro do outro, o loop maior so expira quando o timer de 0,5s acaba (timer11), o outro loop executa as piscadas a 16 Hz (a cada 100ms) (timer10).
+Dentro do "efeito3", duplas são postas em estados diferentes para poder começar a piscar, depois, entro em um loop while que só para quando os leds piscarem 2x (cont != 4), na prática, eles piscam 3x, porque inicialmente as duplas já estão nas posições corretas, o que faz com que tenham que leve metade do tempo para piscar, por isso cont != 4 e não != 6. Dentro desse loop, existe mais 2 loops while, um encarregado de trocar os estados dos leds e o outro loop para desligar todos.
+  Obs: as piscadas tem que estarem dentro dos loops porque o processador do microprocessador é muito mais veloz que o tempo do timer, então, quando ele entra no loop, ele fica executando o while até estourar o tempo do timer (estourar o flag).
+Por último, saí do loop anterior e entra no último laço que consiste em um while dentro do outro, o loop maior só expira quando o timer de 0,5s acaba (timer11), o outro loop executa as piscadas a 16 Hz (a cada 100ms) (timer10).
 
 CONFIGURAÇÃO DAS ENTRADAS, SAIDAS, TIMERS E ETC:
 
